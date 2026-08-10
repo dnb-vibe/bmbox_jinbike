@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#f7f8f9">
+<title>배민탑박스 공임 지원</title>
+<style>
+  :root{
+    /* 힘 뺀 톤 — 민트는 포인트로만 아주 소량 사용 */
+    --bg:#f4f5f6;
+    --card:#ffffff;
+    --ink:#1f2328;
+    --ink-sub:#5b6470;
+    --ink-mute:#8b95a1;
+    --line:#e7eaed;
+    --line-strong:#d7dce1;
+    --mint:#2ac1bc;         /* 포인트 (아이콘/포커스/뱃지 소량) */
+    --mint-soft:#e9f7f6;
+    --primary:#2b2f36;      /* 주요 버튼은 딥 차콜 — 민트 과용 방지 */
+    --primary-ink:#ffffff;
+    --danger:#e0574f;
+    --ok:#2f9e6f;
+    --radius:16px;
+    --radius-sm:12px;
+    --shadow:0 1px 2px rgba(20,25,30,.04), 0 8px 24px rgba(20,25,30,.05);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",
+      "Noto Sans KR",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; letter-spacing:-.01em;
+    line-height:1.55;
+  }
+  /* 모바일 전용 프레임 (데스크톱에서도 폰 폭으로 고정) */
+  .frame{
+    max-width:440px; margin:0 auto; min-height:100vh;
+    background:var(--bg); position:relative;
+    display:flex; flex-direction:column;
+  }
+  /* 상단 바 */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(244,245,246,.82); backdrop-filter:saturate(180%) blur(12px);
+    padding:14px 20px 12px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:10px;
+  }
+  .topbar .back{
+    width:34px; height:34px; border-radius:10px; border:1px solid var(--line);
+    background:var(--card); display:none; align-items:center; justify-content:center;
+    font-size:18px; color:var(--ink-sub); cursor:pointer; flex:0 0 auto;
+  }
+  .topbar .ttl{font-size:15px; font-weight:700; letter-spacing:-.02em;}
+  .topbar .ttl small{display:block; font-size:11px; font-weight:500; color:var(--ink-mute); margin-top:1px;}
+  /* 진행 점 */
+  .steps{display:flex; gap:6px; margin-left:auto;}
+  .steps i{width:7px; height:7px; border-radius:50%; background:var(--line-strong); transition:.25s;}
+  .steps i.on{background:var(--mint); width:20px; border-radius:4px;}
+
+  main{flex:1; padding:20px 20px 120px;}
+  .screen{display:none; animation:fade .28s ease both;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  h1.page{font-size:22px; line-height:1.35; font-weight:800; margin:6px 0 6px; letter-spacing:-.03em;}
+  p.lead{font-size:14px; color:var(--ink-sub); margin:0 0 22px;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:18px;}
+  .card + .card{margin-top:14px;}
+
+  /* 안내 체크 항목 */
+  .guide{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px;}
+  .guide li{display:flex; gap:13px; align-items:flex-start;}
+  .guide .ic{flex:0 0 auto; width:30px; height:30px; border-radius:9px; background:var(--mint-soft);
+    color:var(--mint); display:flex; align-items:center; justify-content:center; margin-top:1px;}
+  .guide .ic svg{width:17px; height:17px;}
+  .guide .tx b{display:block; font-size:14.5px; font-weight:700; margin-bottom:3px;}
+  .guide .tx span{font-size:13px; color:var(--ink-sub); line-height:1.5;}
+
+  /* 동의 */
+  .agree-all{display:flex; align-items:center; gap:12px; padding:16px; border:1px solid var(--line-strong);
+    border-radius:var(--radius-sm); background:#fbfcfc; cursor:pointer;}
+  .agree-all .chk{flex:0 0 auto;}
+  .agree-all b{font-size:15px; font-weight:800;}
+  .agree-item{display:flex; align-items:flex-start; gap:12px; padding:15px 4px; cursor:pointer;}
+  .agree-item + .agree-item{border-top:1px solid var(--line);}
+  .agree-item .chk{flex:0 0 auto; margin-top:1px;}
+  .agree-item .meta{flex:1;}
+  .agree-item .meta .h{display:flex; align-items:center; gap:6px; font-size:14px; font-weight:700;}
+  .agree-item .meta .h .req{font-size:10.5px; color:var(--mint); font-weight:800; background:var(--mint-soft);
+    padding:2px 6px; border-radius:6px;}
+  .agree-item .meta .d{font-size:12.5px; color:var(--ink-mute); margin-top:4px; line-height:1.5;}
+  .agree-item .view{font-size:12px; color:var(--ink-mute); text-decoration:underline; flex:0 0 auto;
+    margin-top:1px; cursor:pointer;}
+
+  /* 커스텀 체크박스 */
+  .chk{width:24px; height:24px; border-radius:50%; border:1.8px solid var(--line-strong);
+    display:inline-flex; align-items:center; justify-content:center; transition:.18s; background:#fff;}
+  .chk svg{width:13px; height:13px; opacity:0; transform:scale(.6); transition:.18s; color:#fff;}
+  .checked .chk{background:var(--mint); border-color:var(--mint);}
+  .checked .chk svg{opacity:1; transform:scale(1);}
+  /* 사각 체크 (안내용) */
+  .chk.sq{border-radius:7px;}
+
+  /* 폼 */
+  .field{margin-bottom:16px;}
+  .field > label{display:block; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:7px;}
+  .field .hint{font-size:12px; color:var(--ink-mute); font-weight:500; margin-left:2px;}
+  .field input[type=text]{
+    width:100%; height:52px; border:1px solid var(--line-strong); border-radius:var(--radius-sm);
+    padding:0 15px; font-size:16px; color:var(--ink); background:#fff; transition:.15s;
+  }
+  .field input::placeholder{color:#b6bdc6;}
+  .field input:focus{outline:none; border-color:var(--mint); box-shadow:0 0 0 3px var(--mint-soft);}
+  .field .err{display:none; font-size:12px; color:var(--danger); margin-top:6px; font-weight:600;}
+  .field.invalid input{border-color:var(--danger);}
+  .field.invalid .err{display:block;}
+
+  /* 라디오 칩 (탑박스 타입) */
+  .chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{flex:1 1 auto; min-width:calc(33.333% - 6px); text-align:center; padding:14px 8px;
+    border:1px solid var(--line-strong); border-radius:var(--radius-sm); font-size:14px; font-weight:600;
+    color:var(--ink-sub); background:#fff; cursor:pointer; transition:.15s;}
+  .chip.sel{border-color:var(--mint); background:var(--mint-soft); color:#127c78; font-weight:700;}
+
+  /* 차대번호 예시 이미지 자리 */
+  .plate-ex{display:flex; gap:10px; margin-top:10px;}
+  .plate-ex figure{flex:1; margin:0; text-align:center;}
+  .plate-ex .ph{height:66px; border:1.5px dashed var(--line-strong); border-radius:10px;
+    display:flex; align-items:center; justify-content:center; color:var(--ink-mute); font-size:11.5px;
+    background:#fbfcfc; line-height:1.4; padding:4px;}
+  .plate-ex figcaption{font-size:11px; color:var(--ink-mute); margin-top:5px;}
+
+  /* 쿠폰 */
+  .coupon{background:var(--card); border-radius:20px; box-shadow:var(--shadow); overflow:hidden;
+    border:1px solid var(--line);}
+  .coupon .head{padding:20px 20px 16px; background:linear-gradient(180deg,#fff, #fbfefe);
+    border-bottom:1px dashed var(--line-strong); position:relative;}
+  .coupon .badge{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:800;
+    color:#127c78; background:var(--mint-soft); padding:5px 10px; border-radius:20px; margin-bottom:12px;}
+  .coupon .badge i{width:6px; height:6px; border-radius:50%; background:var(--mint); display:inline-block;}
+  .coupon .cname{font-size:17px; font-weight:800; letter-spacing:-.02em;}
+  .coupon .cname small{display:block; font-size:12px; color:var(--ink-mute); font-weight:600; margin-top:3px;}
+  /* 펀칭 홀 */
+  .coupon .head::after, .coupon .head::before{content:""; position:absolute; bottom:-11px; width:22px; height:22px;
+    border-radius:50%; background:var(--bg); border:1px solid var(--line);}
+  .coupon .head::before{left:-12px;}
+  .coupon .head::after{right:-12px;}
+
+  .plate-big{margin:6px 0 0; padding:18px; text-align:center;}
+  .plate-big .lbl{font-size:12px; color:var(--ink-mute); font-weight:700; margin-bottom:8px; letter-spacing:.02em;}
+  .plate-big .num{font-size:34px; font-weight:800; letter-spacing:.02em; color:var(--ink);
+    font-variant-numeric:tabular-nums; word-break:keep-all;}
+  .plate-big .cmp{font-size:11.5px; color:var(--mint); font-weight:700; margin-top:6px;}
+
+  .cinfo{padding:2px 20px 18px;}
+  .cinfo .row{display:flex; justify-content:space-between; padding:9px 0; font-size:13.5px;
+    border-top:1px solid var(--line);}
+  .cinfo .row:first-child{border-top:none;}
+  .cinfo .row .k{color:var(--ink-mute); font-weight:500;}
+  .cinfo .row .v{color:var(--ink); font-weight:700;}
+  .status-pill{display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px;
+    font-size:12px; font-weight:800;}
+  .status-pill.ok{background:#eaf7f0; color:var(--ok);}
+  .status-pill.used{background:#f0f1f3; color:var(--ink-mute);}
+  .status-pill i{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;}
+
+  /* 안내 배너 */
+  .note{display:flex; gap:9px; padding:13px 14px; border-radius:12px; font-size:12.5px; line-height:1.5;
+    background:#fbfcfc; border:1px solid var(--line); color:var(--ink-sub); margin-top:14px;}
+  .note.warn{background:#fff8f2; border-color:#f6e3d2; color:#9a6a3a;}
+  .note .ic{flex:0 0 auto; color:var(--ink-mute);}
+  .note.warn .ic{color:#d38a3f;}
+
+  /* 텍스트 일부 강조 (굵게+민트) — 크기는 주변과 동일, 줄바꿈 없음 */
+  .hl{ color:#2ac1bc; font-weight:700; }
+
+  /* 개인정보 안내 (상시 노출 · 주요 규정 강조) */
+  .terms{display:flex; flex-direction:column; gap:15px;}
+  .terms .trow{display:flex; flex-direction:column; gap:5px;}
+  .terms .tk{font-size:12px; font-weight:700; color:var(--ink-mute); letter-spacing:.01em;}
+  .terms .tv{font-size:12.5px; color:var(--ink-sub); line-height:1.55;}
+  /* 중요 내용: 주변보다 20%↑ 크게(≈15px) + 색 + 볼드 (일부 밑줄) */
+  .terms .em{font-size:15px; font-weight:800; color:#127c78; line-height:1.5;}
+  .terms .em.u{text-decoration:underline; text-underline-offset:3px;}
+  .terms .trow + .trow{border-top:1px solid var(--line); padding-top:14px;}
+
+  .agree-one{display:flex; align-items:center; gap:12px; padding:16px; cursor:pointer;
+    border:1px solid var(--line-strong); border-radius:var(--radius-sm); background:#fbfcfc;}
+  .agree-one b{font-size:14.5px; font-weight:800;}
+  .agree-one .req{font-size:10.5px; color:var(--mint); font-weight:800; background:var(--mint-soft);
+    padding:2px 6px; border-radius:6px; margin-left:4px;}
+
+  /* 폼 상단 강조 콜아웃 */
+  .callout{display:flex; align-items:center; gap:9px; padding:15px 16px; border-radius:14px;
+    background:var(--mint-soft); color:#0f6b67; font-size:15px; font-weight:800; margin:2px 0 20px;
+    border:1px solid #cdeeec; line-height:1.4;}
+  .callout svg{flex:0 0 auto;}
+
+  /* 탑박스 '없음' 선택 시 안내 */
+  .type-note{display:none; margin-top:12px; padding:12px 14px; border-radius:11px; font-size:12.5px;
+    line-height:1.55; background:#fff8f2; border:1px solid #f6e3d2; color:#9a6a3a;}
+  .type-note.show{display:block;}
+
+  /* 홈(첫 화면) 큰 버튼 */
+  .home-hero{padding:8px 0 24px;}
+  .home-hero .kicker{display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:800;
+    color:#127c78; background:var(--mint-soft); padding:5px 11px; border-radius:20px; margin-bottom:16px;}
+  .home-hero .kicker i{width:6px;height:6px;border-radius:50%;background:var(--mint);display:inline-block;}
+  .home-btns{display:flex; flex-direction:column; gap:12px;}
+  .btn.btn-lg{height:60px; font-size:17px; border-radius:16px;}
+  .btn.btn-lg .sub{display:block; font-size:12px; font-weight:600; opacity:.72; margin-top:2px; letter-spacing:0;}
+
+  /* 사장님 확인 박스 (쿠폰 화면 하단) */
+  .owner-box{margin-top:16px; padding:16px; border:1.5px solid var(--line-strong); border-radius:14px;
+    background:#fff;}
+  .owner-box .t{font-size:13px; font-weight:800; margin-bottom:4px;}
+  .owner-box .d{font-size:12px; color:var(--ink-mute); margin-bottom:12px; line-height:1.5;}
+
+  /* 버튼 */
+  .cta-wrap{position:fixed; left:0; right:0; bottom:0; z-index:30; pointer-events:none;}
+  .cta-inner{max-width:440px; margin:0 auto; padding:12px 20px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg, rgba(244,245,246,0), var(--bg) 26%); pointer-events:auto;}
+  .btn{width:100%; height:54px; border:none; border-radius:14px; font-size:16px; font-weight:800;
+    cursor:pointer; transition:.15s; letter-spacing:-.02em; font-family:inherit;}
+  .btn:active{transform:scale(.99);}
+  .btn.primary{background:var(--primary); color:var(--primary-ink);}
+  .btn.primary:disabled{background:#c8cdd3; color:#fff; cursor:not-allowed;}
+  .btn.mint{background:var(--mint); color:#fff;}
+  .btn.ghost{background:#fff; border:1px solid var(--line-strong); color:var(--ink);}
+  .btn.danger{background:var(--danger); color:#fff;}
+  .btn.sm{height:48px; font-size:15px;}
+  .btn-row{display:flex; gap:10px;}
+  .textlink{display:block; text-align:center; margin-top:12px; font-size:13.5px; color:var(--ink-sub);
+    font-weight:600; text-decoration:none; padding:8px;}
+  .textlink u{text-underline-offset:3px;}
+
+  /* 조회 결과 상태 안내 */
+  .empty-state{text-align:center; padding:34px 16px;}
+  .empty-state .em{width:64px; height:64px; border-radius:50%; background:#fff; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 16px; color:var(--ink-mute);}
+  .empty-state h3{font-size:16px; font-weight:800; margin:0 0 6px;}
+  .empty-state p{font-size:13px; color:var(--ink-sub); margin:0;}
+
+  /* 완료 화면 */
+  .done-hero{text-align:center; padding:20px 0 6px;}
+  .done-hero .circle{width:74px; height:74px; border-radius:50%; background:var(--mint-soft);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 16px; color:var(--mint);}
+  .done-hero h1{font-size:21px; font-weight:800; margin:0 0 6px;}
+  .done-hero p{font-size:13.5px; color:var(--ink-sub); margin:0;}
+
+  /* 모달 (약관 보기) */
+  .sheet-dim{position:fixed; inset:0; background:rgba(20,25,30,.4); z-index:50; display:none;
+    align-items:flex-end; justify-content:center;}
+  .sheet-dim.show{display:flex;}
+  .sheet{width:100%; max-width:440px; background:#fff; border-radius:20px 20px 0 0; padding:22px 20px 30px;
+    max-height:72vh; overflow:auto; animation:up .28s ease;}
+  @keyframes up{from{transform:translateY(30px); opacity:.6;} to{transform:none; opacity:1;}}
+  .sheet h4{margin:0 0 12px; font-size:16px; font-weight:800;}
+  .sheet .body{font-size:13px; color:var(--ink-sub); line-height:1.65; white-space:pre-line;}
+  .sheet .close{margin-top:18px;}
+
+  /* 토스트 */
+  .toast{position:fixed; left:50%; bottom:100px; transform:translateX(-50%) translateY(10px);
+    background:#2b2f36; color:#fff; padding:12px 18px; border-radius:12px; font-size:13.5px; font-weight:600;
+    opacity:0; transition:.25s; z-index:60; max-width:88%; text-align:center; pointer-events:none;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .foot-mini{text-align:center; font-size:11px; color:var(--ink-mute); margin-top:22px; line-height:1.6;}
+  .divider{height:1px; background:var(--line); margin:18px 0;}
+  .kv-small{font-size:12px;color:var(--ink-mute);}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <!-- 상단 바 -->
+  <header class="topbar">
+    <div class="back" id="backBtn">‹</div>
+    <div class="ttl">배민탑박스 공임 지원<small id="topSub">라이더 신청</small></div>
+    <div class="steps" id="steps">
+      <i class="on"></i><i></i><i></i>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== 0. 홈 (신규 신청 / 조회 선택) ===== -->
+    <section class="screen active" data-screen="home">
+      <div class="home-hero">
+        <span class="kicker"><i></i> 배민커넥트 라이더 전용</span>
+        <h1 class="page">배민탑박스<br>공임 지원 이벤트</h1>
+        <p class="lead">정비소에서 배민탑박스를 설치할 때<br>공임비를 <span class="hl">무상 지원</span>해 드려요.</p>
+      </div>
+      <div class="home-btns">
+        <button class="btn primary btn-lg" data-act="go-guide">신규 신청<span class="sub">처음 신청하시나요?</span></button>
+        <button class="btn ghost btn-lg" data-act="go-lookup">신청 내역 조회<span class="sub">이미 신청하셨다면 여기서 확인</span></button>
+      </div>
+    </section>
+
+    <!-- ===== 1. 이용 안내 ===== -->
+    <section class="screen" data-screen="guide">
+      <h1 class="page">신청 전<br>꼭 확인해 주세요</h1>
+      <p class="lead">⭐신청 후 <span class="hl">즉시</span> 이용할 수 있어요</p>
+
+      <div class="card">
+        <ul class="guide">
+          <li>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="tx"><b>탑박스 설치·기존 탑박스 폐기 비용 지원</b><span><span class="hl">탑박스 구매 비용</span>은 현장에서 <span class="hl">직접 결제</span>하고 설치는 무상으로 받아보실 수 있어요</span></span>
+          </li>
+          <li>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="tx"><b>짐대 신규 구매는 지원 대상이 아니에요</b><span>짐대 노후로 확장플레이트 설치가 어렵거나, 등받이 짐대라 설치가 불가한 경우 등 짐대를 새로 사야 하면 지원되지 않아요.</span></span>
+          </li>
+          <li>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="tx"><b>정비소별 재고가 달라요</b><span>방문 전 정비소에 문의하거나, 상담 후 재방문이 필요할 수 있어요.</span></span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="note">
+        <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01" stroke-linecap="round"/></svg></span>
+        <span>신청 후 발급되는 쿠폰을 정비소 사장님께 보여주시면 설치가 진행돼요.</span>
+      </div>
+    </section>
+
+    <!-- ===== 2. 개인정보 동의 ===== -->
+    <section class="screen" data-screen="agree">
+      <h1 class="page">개인정보 수집·이용<br>동의</h1>
+      <p class="lead">공임 혜택 신청을 위해 아래 내용에 동의가 필요해요.</p>
+
+      <div class="card">
+        <div class="terms">
+          <div class="trow">
+            <div class="tk">수집·이용 목적</div>
+            <div class="tv"><span class="em">배민탑박스 공임 지원 이벤트의 혜택 신청 접수, 본인 확인, 정산 및 사후 확인</span></div>
+          </div>
+          <div class="trow">
+            <div class="tk">수집 항목</div>
+            <div class="tv"><span class="em">이름, 배민커넥트 아이디, 휴대폰번호, 차대번호</span></div>
+          </div>
+          <div class="trow">
+            <div class="tk">보유·이용 기간</div>
+            <div class="tv"><span class="em">이벤트 정산 완료 후 관련 법령에 따라 지체 없이 파기</span></div>
+          </div>
+          <div class="trow">
+            <div class="tk">동의 거부 권리 안내</div>
+            <div class="tv"><span class="em u">개인정보 수집·이용에 동의를 거부할 권리가 있으며, 거부 시 본 이벤트 참여가 제한됩니다.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="agree-one" id="agreeA1">
+          <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <b>위 개인정보 수집·이용에 동의합니다 <span class="req">필수</span></b>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 3. 신청 정보 입력 ===== -->
+    <section class="screen" data-screen="form">
+      <h1 class="page">신청 정보 입력</h1>
+      <div class="callout">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12l1-9z" stroke-linejoin="round"/></svg>
+        <span>제출만 하면 바로 공임 혜택을 받을 수 있어요</span>
+      </div>
+
+      <div class="card">
+        <div class="field" id="f-name">
+          <label>이름</label>
+          <input type="text" id="in-name" placeholder="실명을 입력해 주세요" autocomplete="name">
+          <div class="err">이름을 입력해 주세요.</div>
+        </div>
+
+        <div class="field" id="f-id">
+          <label>배민커넥트 아이디</label>
+          <input type="text" id="in-id" placeholder="배민커넥트 아이디" autocapitalize="off" autocomplete="off">
+          <div class="err">아이디를 입력해 주세요.</div>
+        </div>
+
+        <div class="field" id="f-phone">
+          <label>휴대폰번호</label>
+          <input type="text" id="in-phone" inputmode="numeric" placeholder="숫자만 입력 (하이픈 없이)" autocomplete="tel">
+          <div class="err">휴대폰번호를 정확히 입력해 주세요.</div>
+        </div>
+
+        <div class="field" id="f-vin" style="margin-bottom:8px;">
+          <label>차대번호 <span class="hint">번호판에 적힌 번호</span></label>
+          <input type="text" id="in-vin" placeholder="차대번호를 입력해 주세요" autocapitalize="characters" autocomplete="off">
+          <div class="err">차대번호를 입력해 주세요.</div>
+        </div>
+        <div class="plate-ex">
+          <figure>
+            <div class="ph">기존 번호판 예시<br>이미지 위치</div>
+            <figcaption>기존 번호판</figcaption>
+          </figure>
+          <figure>
+            <div class="ph">신규 번호판 예시<br>이미지 위치</div>
+            <figcaption>신규 번호판</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field" style="margin-bottom:0;">
+          <label>현재 사용 중인 탑박스 타입</label>
+          <div class="chips" id="boxType">
+            <div class="chip" data-val="알루미늄">알루미늄</div>
+            <div class="chip" data-val="플라스틱">플라스틱</div>
+            <div class="chip" data-val="EPP">EPP</div>
+            <div class="chip" data-val="기타">기타</div>
+            <div class="chip" data-val="없음">없음</div>
+          </div>
+          <div class="type-note" id="typeNote">짐대 신규 설치가 필요한 경우는 직접 구매하셔야 해요. (설치 공임만 지원되며 짐대 비용은 지원되지 않아요.)</div>
+          <div class="err" id="boxTypeErr" style="display:none; font-size:12px; color:var(--danger); margin-top:8px; font-weight:600;">탑박스 타입을 선택해 주세요.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4a. 쿠폰 (발급 완료 헤더) ===== -->
+    <section class="screen" data-screen="coupon">
+      <div class="done-hero" id="issuedHero" style="display:none;">
+        <div class="circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h1>혜택 신청이 완료되었어요</h1>
+        <p>정비소 사장님께 이 화면을 보여주세요.</p>
+      </div>
+
+      <div class="coupon" id="couponCard">
+        <div class="head">
+          <span class="badge"><i></i> 무상 공임 지원</span>
+          <div class="cname">배민탑박스 공임 설치 지원<small>지원 범위: 탑박스 설치, 기존 탑박스 폐기<br>*사장님 판단에 따라 필요시 확장플레이트 및 설치 지원</small></div>
+        </div>
+        <div class="plate-big">
+          <div class="lbl">차대번호</div>
+          <div class="num" id="c-vin">12가 3456</div>
+          <div class="cmp">신청하신 차량과 동일해야 설치가 가능합니다.</div>
+        </div>
+        <div class="cinfo">
+          <div class="row"><span class="k">신청자</span><span class="v" id="c-name">홍길동</span></div>
+          <div class="row"><span class="k">현재 탑박스</span><span class="v" id="c-box">알루미늄</span></div>
+          <div class="row"><span class="k">발급일</span><span class="v" id="c-date">2026.08.06</span></div>
+          <div class="row"><span class="k">상태</span><span class="v"><span class="status-pill ok" id="c-status"><i></i> 사용가능</span></span></div>
+        </div>
+      </div>
+
+      <!-- 사장님 확인 영역 -->
+      <div class="owner-box" id="ownerBox">
+        <div class="t">사장님 확인</div>
+        <div class="d">차대번호가 동일하다면 아래 버튼을 눌러 사용처리를 해 주세요.<br>한 번 처리하면 되돌릴 수 없어요.</div>
+        <button class="btn danger sm" id="useBtn">사용처리</button>
+      </div>
+
+      <div class="note warn" id="usedNote" style="display:none;">
+        <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01" stroke-linecap="round"/></svg></span>
+        <span>이미 사용 처리된 쿠폰이에요. 재사용은 불가합니다.</span>
+      </div>
+
+      <div class="foot-mini">궁금하신 점은 아래 창구로 연락해 주세요.<br>사장님: 진바이크로 문의<br>라이더님: 배민커넥트 지원센터로 문의</div>
+    </section>
+
+    <!-- ===== 5. 조회 (이름+휴대폰) ===== -->
+    <section class="screen" data-screen="lookup">
+      <h1 class="page">신청 내역 조회</h1>
+      <p class="lead">신청할 때 입력한 이름과 휴대폰번호로 조회해요.</p>
+
+      <div class="card">
+        <div class="field" id="f-lname">
+          <label>이름</label>
+          <input type="text" id="lk-name" placeholder="이름" autocomplete="name">
+          <div class="err">이름을 입력해 주세요.</div>
+        </div>
+        <div class="field" id="f-lphone" style="margin-bottom:0;">
+          <label>휴대폰번호</label>
+          <input type="text" id="lk-phone" inputmode="numeric" placeholder="숫자만 입력 (하이픈 없이)" autocomplete="tel">
+          <div class="err">휴대폰번호를 입력해 주세요.</div>
+        </div>
+      </div>
+
+      <!-- 조회 결과 없음 -->
+      <div id="lk-none" style="display:none;">
+        <div class="card" style="margin-top:14px;">
+          <div class="empty-state">
+            <div class="em"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg></div>
+            <h3>신청 내역이 없어요</h3>
+            <p>입력하신 정보로 발급된 쿠폰을 찾지 못했어요.<br>아직 신청 전이라면 새로 신청해 주세요.</p>
+          </div>
+        </div>
+        <a class="textlink" id="toApplyFromNone"><u>처음부터 신청하기</u></a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 하단 고정 CTA -->
+  <div class="cta-wrap">
+    <div class="cta-inner" id="ctaArea"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   ⚠️ 프로토타입 안내 (디자인 확인용)
+   - 실제 데이터 저장/조회는 백엔드(구글 앱스스크립트 등)에서만 처리 예정.
+   - 구글시트 링크/키는 이 클라이언트 코드에 절대 넣지 않습니다.
+   - 아래 store 는 화면 흐름 시연을 위한 '브라우저 메모리 임시저장'일 뿐이며
+     새로고침하면 사라집니다. 연동 시 fetch(백엔드 API)로 교체합니다.
+   ========================================================================= */
+const store = []; // { name, id, phone(digits), vin, box, date, used }
+
+/* ---- 유틸 ---- */
+const $  = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const onlyDigits = s => (s||'').replace(/\D/g,'');
+const norm = s => (s||'').trim().toLowerCase().replace(/\s+/g,''); // 이름/아이디 대소문자·공백 무시
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1900); }
+function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())}`; }
+
+/* ---- 화면 전환 ---- */
+const order = ['guide','agree','form']; // 스텝 진행 점 대상
+let current = 'home';
+let activeCoupon = null; // 현재 쿠폰 화면이 보고 있는 레코드
+
+function show(name, opts={}){
+  $$('.screen').forEach(s=>s.classList.toggle('active', s.dataset.screen===name));
+  current = name;
+  window.scrollTo(0,0);
+  updateChrome(opts);
+  renderCTA();
+}
+
+function updateChrome(opts={}){
+  // 진행 점
+  const idx = order.indexOf(current);
+  const dots = $$('#steps i');
+  if(idx>=0){ $('#steps').style.display='flex';
+    dots.forEach((d,i)=>d.classList.toggle('on', i<=idx));
+  } else { $('#steps').style.display='none'; }
+
+  // 뒤로가기 버튼 + 서브타이틀
+  const sub = {home:'신청', guide:'이용 안내', agree:'개인정보 동의', form:'신청 정보 입력',
+               coupon:'내 신청 혜택', lookup:'신청 내역 조회'}[current] || '';
+  $('#topSub').textContent = sub;
+  const showBack = ['guide','agree','form','lookup'].includes(current) || (current==='coupon' && opts.fromLookup);
+  $('#backBtn').style.display = showBack ? 'flex' : 'none';
+}
+
+/* 뒤로가기 로직 */
+$('#backBtn').addEventListener('click', ()=>{
+  if(current==='guide') show('home');
+  else if(current==='agree') show('guide');
+  else if(current==='form') show('agree');
+  else if(current==='lookup') show('home');
+  else if(current==='coupon') show('lookup');
+});
+
+/* ---- 하단 CTA 를 화면별로 렌더 ---- */
+function renderCTA(){
+  const box = $('#ctaArea');
+  let html = '';
+  if(current==='guide'){
+    html = `<button class="btn primary" data-act="go-agree">다음</button>`;
+  } else if(current==='agree'){
+    const ok = agreeState.a1;
+    html = `<button class="btn primary" data-act="go-form" ${ok?'':'disabled'}>다음</button>`;
+  } else if(current==='form'){
+    html = `<button class="btn primary" data-act="submit">제출하고 공임 혜택 받기</button>`;
+  } else if(current==='coupon'){
+    if(activeCoupon && activeCoupon.fromLookup){
+      html = `<button class="btn ghost" data-act="go-lookup">다른 번호로 조회</button>`;
+    } else {
+      html = `<a class="textlink" data-act="go-home"><u>처음으로</u></a>`;
+    }
+  } else if(current==='lookup'){
+    html = `<button class="btn primary" data-act="do-lookup">조회하기</button>`;
+  }
+  box.innerHTML = html;
+  $('.cta-wrap').style.display = html ? 'block' : 'none'; // 홈에서는 하단 버튼 숨김
+}
+
+/* 액션 라우팅 (하단 CTA + 화면 내 버튼 공통) */
+function route(act){
+  if(act==='go-guide') show('guide');
+  else if(act==='go-agree') show('agree');
+  else if(act==='go-form') show('form');
+  else if(act==='go-lookup'){ resetLookup(); show('lookup'); }
+  else if(act==='go-home'){ resetForm(); show('home'); }
+  else if(act==='submit') submitForm();
+  else if(act==='do-lookup') doLookup();
+}
+function delegate(root){
+  root.addEventListener('click', e=>{
+    const el = e.target.closest('[data-act]');
+    if(!el || !root.contains(el)) return;
+    route(el.dataset.act);
+  });
+}
+delegate($('#ctaArea'));
+delegate(document.querySelector('main')); // 홈 화면의 신규신청/조회 버튼 등
+
+/* 조회 결과없음 화면의 '처음부터 신청하기' */
+$('#toApplyFromNone').addEventListener('click', ()=>{ resetForm(); show('home'); });
+
+/* =========================================================================
+   동의 로직
+   ========================================================================= */
+const agreeState = {a1:false};
+function paintAgree(){
+  $('#agreeA1').classList.toggle('checked', agreeState.a1);
+  renderCTA();
+}
+$('#agreeA1').addEventListener('click', ()=>{
+  agreeState.a1 = !agreeState.a1; paintAgree();
+});
+
+/* =========================================================================
+   신청 폼
+   ========================================================================= */
+let selectedBox = '';
+$$('#boxType .chip').forEach(c=>c.addEventListener('click', ()=>{
+  $$('#boxType .chip').forEach(x=>x.classList.remove('sel'));
+  c.classList.add('sel'); selectedBox=c.dataset.val; $('#boxTypeErr').style.display='none';
+  $('#typeNote').classList.toggle('show', selectedBox==='없음'); // '없음' 선택 시 안내
+}));
+
+// 휴대폰 입력 시 숫자만
+$('#in-phone').addEventListener('input', e=>{ e.target.value = onlyDigits(e.target.value).slice(0,11); });
+$('#lk-phone').addEventListener('input', e=>{ e.target.value = onlyDigits(e.target.value).slice(0,11); });
+
+function setInvalid(fieldId, bad){ $(fieldId).classList.toggle('invalid', bad); }
+
+function submitForm(){
+  const name = $('#in-name').value.trim();
+  const id   = $('#in-id').value.trim();
+  const phone= onlyDigits($('#in-phone').value);
+  const vin  = $('#in-vin').value.trim();
+
+  let ok = true;
+  setInvalid('#f-name', !name); ok = ok && !!name;
+  setInvalid('#f-id', !id); ok = ok && !!id;
+  const phoneBad = phone.length < 10; setInvalid('#f-phone', phoneBad); ok = ok && !phoneBad;
+  setInvalid('#f-vin', !vin); ok = ok && !!vin;
+  if(!selectedBox){ $('#boxTypeErr').style.display='block'; ok=false; }
+
+  if(!ok){ toast('입력 정보를 확인해 주세요'); return; }
+
+  const rec = { name, id, phone, vin, box:selectedBox, date:todayStr(), used:false };
+  store.push(rec);            // 👉 연동 시: 백엔드 POST 로 교체
+  openCoupon(rec, {issued:true, fromLookup:false});
+}
+
+/* =========================================================================
+   쿠폰 화면 렌더
+   ========================================================================= */
+function openCoupon(rec, {issued=false, fromLookup=false}={}){
+  activeCoupon = Object.assign(rec, {fromLookup});
+  $('#c-vin').textContent  = rec.vin;
+  $('#c-name').textContent = rec.name;
+  $('#c-box').textContent  = rec.box;
+  $('#c-date').textContent = rec.date;
+  paintCouponStatus(rec);
+  $('#issuedHero').style.display = issued ? 'block' : 'none';
+  show('coupon', {fromLookup});
+}
+function paintCouponStatus(rec){
+  const pill = $('#c-status');
+  if(rec.used){
+    pill.className='status-pill used'; pill.innerHTML='<i></i> 사용완료';
+    $('#ownerBox').style.display='none'; $('#usedNote').style.display='flex';
+    $('#couponCard').style.opacity='.72';
+  } else {
+    pill.className='status-pill ok'; pill.innerHTML='<i></i> 사용가능';
+    $('#ownerBox').style.display='block'; $('#usedNote').style.display='none';
+    $('#couponCard').style.opacity='1';
+  }
+}
+
+/* 사용처리 (소멸) */
+$('#useBtn').addEventListener('click', ()=>{
+  if(!activeCoupon) return;
+  activeCoupon.used = true;      // 👉 연동 시: 백엔드에서 상태변경(원자적 처리)
+  paintCouponStatus(activeCoupon);
+  toast('사용 처리됐어요. 재사용은 불가합니다.');
+});
+
+/* =========================================================================
+   조회
+   ========================================================================= */
+function resetLookup(){
+  $('#lk-name').value=''; $('#lk-phone').value='';
+  setInvalid('#f-lname',false); setInvalid('#f-lphone',false);
+  $('#lk-none').style.display='none';
+}
+function doLookup(){
+  const name = $('#lk-name').value.trim();
+  const phone= onlyDigits($('#lk-phone').value);
+  let ok=true;
+  setInvalid('#f-lname', !name); ok = ok && !!name;
+  const pBad = phone.length<10; setInvalid('#f-lphone', pBad); ok = ok && !pBad;
+  if(!ok){ toast('이름과 휴대폰번호를 확인해 주세요'); return; }
+
+  // 이름 대소문자·공백 무시 + 휴대폰 숫자만 대조 (👉 연동 시 백엔드 조회로 교체)
+  const found = store.find(r => norm(r.name)===norm(name) && r.phone===phone);
+  if(found){
+    $('#lk-none').style.display='none';
+    openCoupon(found, {issued:false, fromLookup:true});
+  } else {
+    $('#lk-none').style.display='block';
+  }
+}
+
+/* 폼 초기화 */
+function resetForm(){
+  ['#in-name','#in-id','#in-phone','#in-vin'].forEach(s=>$(s).value='');
+  $$('#boxType .chip').forEach(x=>x.classList.remove('sel')); selectedBox='';
+  $('#typeNote').classList.remove('show');
+  agreeState.a1=false; paintAgree();
+  ['#f-name','#f-id','#f-phone','#f-vin'].forEach(s=>setInvalid(s,false));
+  $('#boxTypeErr').style.display='none';
+}
+
+/* 초기 렌더 */
+paintAgree();
+renderCTA();
+updateChrome();
+</script>
+</body>
+</html>
