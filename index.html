@@ -512,7 +512,49 @@
    - 아래 store 는 화면 흐름 시연을 위한 '브라우저 메모리 임시저장'일 뿐이며
      새로고침하면 사라집니다. 연동 시 fetch(백엔드 API)로 교체합니다.
    ========================================================================= */
-const store = []; // { name, id, phone(digits), vin, box, date, used }
+const store = []; // 데모(브라우저 임시저장) — WEB_APP_URL 미설정 시에만 사용
+
+/* =========================================================================
+   백엔드 연동 설정
+   - WEB_APP_URL 에 Apps Script '웹 앱 배포 URL'(…/exec)만 붙여넣으세요.
+   - 스프레드시트 링크/키는 절대 여기에 넣지 않습니다(서버에만).
+   - 비워두면 아래 데모(브라우저 메모리)로 동작합니다.
+   ========================================================================= */
+const CONFIG = { WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbw6SI8X5ZN9Gzngh4vNgkaC1Br1tvmxd97iSa8OVcvtwWxhyVppN3OgWvXiaDs7gU_u/exec' };
+
+async function api(action, payload){
+  if(!CONFIG.WEB_APP_URL){ return demoApi(action, payload); } // 미설정 → 데모
+  const res = await fetch(CONFIG.WEB_APP_URL, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // preflight(CORS) 회피
+    body: JSON.stringify(Object.assign({ action }, payload)),
+    redirect:'follow'
+  });
+  return await res.json();
+}
+
+/* 데모용 가짜 백엔드 (연동 전 미리보기 유지) */
+function demoApi(action, p){
+  if(action==='apply'){
+    let ex = store.find(r => norm(r.name)===norm(p.name) && r.phone===onlyDigits(p.phone));
+    if(!ex){
+      ex = { couponId:'TB'+Date.now(), name:p.name, id:p.id, phone:onlyDigits(p.phone),
+             vin:p.vin, box:p.box, date:todayStr(), status:'사용가능', used:false };
+      store.push(ex);
+    }
+    return Promise.resolve({ ok:true, coupon:ex });
+  }
+  if(action==='lookup'){
+    const f = store.find(r => norm(r.name)===norm(p.name) && r.phone===onlyDigits(p.phone));
+    return Promise.resolve({ ok:true, found:!!f, coupon:f });
+  }
+  if(action==='use'){
+    const f = store.find(r => r.couponId===p.couponId);
+    if(f){ f.used=true; f.status='사용완료'; }
+    return Promise.resolve({ ok:true, coupon:f });
+  }
+  return Promise.resolve({ ok:false, error:'unknown_action' });
+}
 
 /* ---- 유틸 ---- */
 const $  = s => document.querySelector(s);
@@ -635,7 +677,7 @@ $('#lk-phone').addEventListener('input', e=>{ e.target.value = onlyDigits(e.targ
 
 function setInvalid(fieldId, bad){ $(fieldId).classList.toggle('invalid', bad); }
 
-function submitForm(){
+async function submitForm(){
   const name = $('#in-name').value.trim();
   const id   = $('#in-id').value.trim();
   const phone= onlyDigits($('#in-phone').value);
@@ -650,9 +692,17 @@ function submitForm(){
 
   if(!ok){ toast('입력 정보를 확인해 주세요'); return; }
 
-  const rec = { name, id, phone, vin, box:selectedBox, date:todayStr(), used:false };
-  store.push(rec);            // 👉 연동 시: 백엔드 POST 로 교체
-  openCoupon(rec, {issued:true, fromLookup:false});
+  const btn = $('#ctaArea .btn');
+  if(btn){ btn.disabled = true; btn.textContent = '처리 중…'; }
+  try{
+    const r = await api('apply', { name, id, phone, vin, box:selectedBox });
+    if(!r || !r.ok){ toast('제출에 실패했어요. 잠시 후 다시 시도해 주세요'); return; }
+    openCoupon(r.coupon, { issued:true, fromLookup:false });
+  }catch(err){
+    toast('네트워크 오류가 발생했어요. 다시 시도해 주세요');
+  }finally{
+    renderCTA(); // 버튼 원복
+  }
 }
 
 /* =========================================================================
@@ -681,12 +731,26 @@ function paintCouponStatus(rec){
   }
 }
 
-/* 사용처리 (소멸) */
-$('#useBtn').addEventListener('click', ()=>{
+/* 사용처리 (소멸, 재사용 차단) */
+$('#useBtn').addEventListener('click', async ()=>{
   if(!activeCoupon) return;
-  activeCoupon.used = true;      // 👉 연동 시: 백엔드에서 상태변경(원자적 처리)
-  paintCouponStatus(activeCoupon);
-  toast('사용 처리됐어요. 재사용은 불가합니다.');
+  const btn = $('#useBtn');
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '처리 중…';
+  try{
+    const r = await api('use', { couponId: activeCoupon.couponId });
+    if(r && r.ok){
+      activeCoupon.used = true; activeCoupon.status = '사용완료';
+      paintCouponStatus(activeCoupon);
+      toast(r.already ? '이미 사용 처리된 쿠폰이에요.' : '사용 처리됐어요. 재사용은 불가합니다.');
+    } else {
+      toast('사용처리에 실패했어요. 다시 시도해 주세요');
+      btn.disabled = false; btn.textContent = orig;
+    }
+  }catch(err){
+    toast('네트워크 오류가 발생했어요. 다시 시도해 주세요');
+    btn.disabled = false; btn.textContent = orig;
+  }
 });
 
 /* =========================================================================
@@ -697,7 +761,7 @@ function resetLookup(){
   setInvalid('#f-lname',false); setInvalid('#f-lphone',false);
   $('#lk-none').style.display='none';
 }
-function doLookup(){
+async function doLookup(){
   const name = $('#lk-name').value.trim();
   const phone= onlyDigits($('#lk-phone').value);
   let ok=true;
@@ -705,13 +769,22 @@ function doLookup(){
   const pBad = phone.length<10; setInvalid('#f-lphone', pBad); ok = ok && !pBad;
   if(!ok){ toast('이름과 휴대폰번호를 확인해 주세요'); return; }
 
-  // 이름 대소문자·공백 무시 + 휴대폰 숫자만 대조 (👉 연동 시 백엔드 조회로 교체)
-  const found = store.find(r => norm(r.name)===norm(name) && r.phone===phone);
-  if(found){
-    $('#lk-none').style.display='none';
-    openCoupon(found, {issued:false, fromLookup:true});
-  } else {
-    $('#lk-none').style.display='block';
+  const btn = $('#ctaArea .btn');
+  if(btn){ btn.disabled = true; btn.textContent = '조회 중…'; }
+  try{
+    const r = await api('lookup', { name, phone }); // 대소문자·하이픈 무시는 서버에서 처리
+    if(r && r.ok && r.found){
+      $('#lk-none').style.display='none';
+      openCoupon(r.coupon, { issued:false, fromLookup:true });
+    } else if(r && r.ok){
+      $('#lk-none').style.display='block';
+    } else {
+      toast('조회 중 오류가 발생했어요. 다시 시도해 주세요');
+    }
+  }catch(err){
+    toast('네트워크 오류가 발생했어요. 다시 시도해 주세요');
+  }finally{
+    if(current==='lookup') renderCTA(); // 버튼 원복
   }
 }
 
