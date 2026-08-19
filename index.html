@@ -215,9 +215,12 @@
   .home-hero .kicker i{width:6px;height:6px;border-radius:50%;background:var(--mint);display:inline-block;}
   .home-btns{display:flex; flex-direction:column; gap:12px;}
   .btn.accent{background:var(--mint); color:#fff;}                 /* 신규신청 강조 */
-  .home-hero .onsite{display:flex; align-items:center; gap:7px; margin-top:14px;
-    padding:11px 14px; border-radius:12px; background:#fff8f2; border:1px solid #f6e3d2;
-    color:#9a6a3a; font-size:13px; font-weight:700; line-height:1.4;}
+  .home-hero .hi-strip{display:flex; flex-direction:column; gap:8px; margin-top:16px;}
+  .home-hero .hi{display:flex; align-items:center; gap:8px;
+    padding:11px 13px; border-radius:12px; background:var(--mint-soft);
+    color:#127c78; font-size:13.5px; font-weight:600; line-height:1.35;}
+  .home-hero .hi .ic{font-size:15px; line-height:1;}
+  .home-hero .hi b{font-weight:800;}
   .btn.btn-lg{height:60px; font-size:17px; border-radius:16px;}
   .btn.btn-lg .sub{display:block; font-size:12px; font-weight:600; opacity:.72; margin-top:2px; letter-spacing:0;}
 
@@ -278,6 +281,20 @@
     opacity:0; transition:.25s; z-index:60; max-width:88%; text-align:center; pointer-events:none;}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
+  /* 중복 경고 모달 */
+  .modal-dim{position:fixed; inset:0; background:rgba(20,24,28,.5); z-index:80;
+    display:flex; align-items:center; justify-content:center; padding:28px;}
+  .modal-card{background:#fff; border-radius:20px; padding:26px 22px 20px; width:100%; max-width:340px;
+    text-align:center; box-shadow:0 18px 50px rgba(0,0,0,.22);}
+  .modal-card .m-ico{width:52px; height:52px; border-radius:50%; margin:0 auto 14px;
+    background:#fff1f0; color:var(--danger); font-size:28px; font-weight:900; line-height:52px;}
+  .modal-card h2{font-size:17px; font-weight:800; margin:0 0 8px; line-height:1.35; word-break:keep-all;}
+  .modal-card #dupDesc{font-size:14.5px; font-weight:700; color:var(--ink); margin:0 0 10px; line-height:1.45;}
+  .modal-card .m-help{font-size:13px; color:var(--ink-sub); margin:0 0 18px; line-height:1.5; word-break:keep-all;}
+  .modal-card .m-help b{color:var(--ink);}
+  .modal-card .m-btns{display:flex; gap:9px;}
+  .modal-card .m-btns .btn{flex:1; height:48px; font-size:15px; border-radius:13px;}
+
   .foot-mini{text-align:center; font-size:11px; color:var(--ink-mute); margin-top:22px; line-height:1.6;}
   .divider{height:1px; background:var(--line); margin:18px 0;}
   .kv-small{font-size:12px;color:var(--ink-mute);}
@@ -302,7 +319,9 @@
         <span class="kicker"><i></i> 배민커넥트 라이더 전용</span>
         <h1 class="page">배민탑박스<br>설치비 100% 지원</h1>
         <p class="lead">전국 61개 정비소에서<br><span class="hl">탑박스 구매 시 설치비 무료 지원</span></p>
-        <div class="onsite">📍 정비소에서 <b>직접 구매하는 라이더</b>를 위한 혜택이에요</div>
+        <div class="hi-strip">
+          <div class="hi"><span class="ic">🔥</span><b>선착순 250명</b> · 조기 마감될 수 있어요</div>
+        </div>
       </div>
       <div class="home-btns">
         <button class="btn accent btn-lg" data-act="go-guide">신규 신청<span class="sub">처음 신청하시나요?</span></button>
@@ -349,7 +368,7 @@
         <div class="terms">
           <div class="trow">
             <div class="tk">수집·이용 목적</div>
-            <div class="tv"><span class="em">설치 혜택 신청 접수, 신청 내역 조회, 본인 확인</span></div>
+            <div class="tv"><span class="em">설치비 지원 신청 접수, 신청 내역 조회</span></div>
           </div>
           <div class="trow">
             <div class="tk">수집 항목</div>
@@ -386,12 +405,12 @@
         <div class="field" id="f-name">
           <label>성함</label>
           <input type="text" id="in-name" placeholder="성함을 입력해 주세요" autocomplete="name">
-          <div class="err">성함을 입력해 주세요.</div>
+          <div class="err">신청하시는 라이더님 성함</div>
         </div>
 
         <div class="field" id="f-id">
           <label>아이디</label>
-          <input type="text" id="in-id" placeholder="아이디" autocapitalize="off" autocomplete="off">
+          <input type="text" id="in-id" placeholder="배민커넥트 아이디" autocapitalize="off" autocomplete="off">
           <div class="err">아이디를 입력해 주세요.</div>
         </div>
 
@@ -403,7 +422,7 @@
 
         <div class="field" id="f-vin" style="margin-bottom:8px;">
           <label>오토바이 번호판</label>
-          <input type="text" id="in-vin" placeholder="번호판을 입력해 주세요" autocapitalize="characters" autocomplete="off">
+          <input type="text" id="in-vin" placeholder="탑박스를 설치할 오토바이 차량번호" autocapitalize="characters" autocomplete="off">
           <div class="err">번호판을 입력해 주세요.</div>
         </div>
         <div class="plate-ex">
@@ -436,12 +455,13 @@
       <div class="done-hero" id="issuedHero" style="display:none;">
         <div class="circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h1>혜택 신청이 완료되었어요</h1>
+        <p class="sub">아래 화면을 정비소에서 보여주세요.</p>
       </div>
 
       <div class="coupon" id="couponCard">
         <div class="head">
           <span class="badge"><i></i> 정비소 사장님께 이 화면을 보여주세요.</span>
-          <div class="cname">배민탑박스 설치비 100% 지원<small>지원 범위: 탑박스 설치, 기존 탑박스 폐기<br>*사장님 판단에 따라 필요시 확장플레이트 제공</small></div>
+          <div class="cname">배민탑박스 설치비 100% 지원<small>지원 범위: 탑박스 설치, 기존 탑박스 폐기<br>*확장플레이트는 필요시 제공(사장님 판단)</small></div>
         </div>
         <div class="plate-big">
           <div class="lbl">오토바이 번호판</div>
@@ -459,7 +479,7 @@
       <!-- 사장님 확인 영역 -->
       <div class="owner-box" id="ownerBox">
         <div class="t">사장님 확인</div>
-        <div class="d">차량번호가 동일하다면 아래 버튼을 눌러 사용처리를 해 주세요.<br>한 번 처리하면 되돌릴 수 없어요.</div>
+        <div class="d">실제 차량 번호판이 위 번호와 같다면, 아래 버튼을 눌러 사용처리를 해 주세요.<br>한 번 처리하면 되돌릴 수 없어요.</div>
         <button class="btn danger sm" id="useBtn">사용처리</button>
       </div>
 
@@ -512,6 +532,19 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- 중복 신청 경고 모달 -->
+<div class="modal-dim" id="dupModal" style="display:none;">
+  <div class="modal-card">
+    <div class="m-ico">!</div>
+    <h2 id="dupTitle">이미 신청된 내역이 있어요</h2>
+    <p class="m-help">본인이 신청하셨다면 <b>신청 내역 조회</b>에서 확인하세요.</p>
+    <div class="m-btns">
+      <button class="btn ghost" id="dupClose">닫기</button>
+      <button class="btn accent" id="dupToLookup">신청 내역 조회</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================================================================
    ⚠️ 프로토타입 안내 (디자인 확인용)
@@ -544,13 +577,19 @@ async function api(action, payload){
 /* 데모용 가짜 백엔드 (연동 전 미리보기 유지) */
 function demoApi(action, p){
   if(action==='apply'){
-    let ex = store.find(r => norm(r.name)===norm(p.name) && r.phone===onlyDigits(p.phone));
-    if(!ex){
-      ex = { couponId:'TB'+Date.now(), name:p.name, id:p.id, phone:onlyDigits(p.phone),
-             vin:p.vin, box:p.box, date:todayStr(), status:'사용가능', used:false };
-      store.push(ex);
+    // 실서버와 동일: 연락처·아이디·번호판 중 하나라도 겹치면 중복
+    const pid=norm(p.id), pvin=norm(p.vin), pph=onlyDigits(p.phone);
+    for(const r of store){
+      let reason='';
+      if(pph && r.phone===pph) reason='phone';
+      else if(pid && norm(r.id)===pid) reason='id';
+      else if(pvin && norm(r.vin)===pvin) reason='vin';
+      if(reason){ return Promise.resolve({ ok:true, duplicate:true, reason }); } // 타인 정보 미노출
     }
-    return Promise.resolve({ ok:true, coupon:ex });
+    const ex = { couponId:'TB'+Date.now(), name:p.name, id:p.id, phone:onlyDigits(p.phone),
+                 vin:p.vin, box:p.box, date:todayStr(), status:'사용가능', used:false };
+    store.push(ex);
+    return Promise.resolve({ ok:true, duplicate:false, coupon:ex });
   }
   if(action==='lookup'){
     const f = store.find(r => norm(r.name)===norm(p.name) && r.phone===onlyDigits(p.phone));
@@ -570,6 +609,21 @@ const $$ = s => document.querySelectorAll(s);
 const onlyDigits = s => (s||'').replace(/\D/g,'');
 const norm = s => (s||'').trim().toLowerCase().replace(/\s+/g,''); // 성함/아이디 대소문자·공백 무시
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1900); }
+
+/* 중복 신청 경고 모달 (타인 정보 노출 없이 사유만 안내) */
+const DUP_MSG = {
+  phone: '동일한 연락처로 신청된 내역이 있어요',
+  id:    '동일한 아이디로 신청된 내역이 있어요',
+  vin:   '동일한 차량번호로 신청된 내역이 있어요'
+};
+function openDupModal(reason){
+  $('#dupTitle').textContent = DUP_MSG[reason] || '이미 신청된 내역이 있어요';
+  $('#dupModal').style.display = 'flex';
+}
+function closeDupModal(){ $('#dupModal').style.display = 'none'; }
+$('#dupClose').addEventListener('click', closeDupModal);
+$('#dupToLookup').addEventListener('click', ()=>{ closeDupModal(); resetLookup(); show('lookup'); });
+$('#dupModal').addEventListener('click', e=>{ if(e.target.id==='dupModal') closeDupModal(); });
 function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())}`; }
 
 /* ---- 화면 전환 ---- */
@@ -711,6 +765,8 @@ async function submitForm(){
   try{
     const r = await api('apply', { name, id, phone, vin, box:selectedBox });
     if(!r || !r.ok){ toast('제출에 실패했어요. 잠시 후 다시 시도해 주세요'); return; }
+    // 중복이면 타인 정보 노출 방지를 위해 쿠폰을 열지 않고 경고만 표시
+    if(r.duplicate){ openDupModal(r.reason); return; }
     openCoupon(r.coupon, { issued:true, fromLookup:false });
   }catch(err){
     toast('네트워크 오류가 발생했어요. 다시 시도해 주세요');
