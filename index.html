@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#f7f8f9">
-<title>배민탑박스 공임 지원</title>
+<title>배민탑박스 설치비 100% 지원</title>
 <style>
   :root{
     /* 힘 뺀 톤 — 민트는 포인트로만 아주 소량 사용 */
@@ -124,9 +124,10 @@
   .chip{flex:1 1 auto; min-width:calc(33.333% - 6px); text-align:center; padding:14px 8px;
     border:1px solid var(--line-strong); border-radius:var(--radius-sm); font-size:14px; font-weight:600;
     color:var(--ink-sub); background:#fff; cursor:pointer; transition:.15s;}
-  .chip.sel{border-color:var(--mint); background:var(--mint-soft); color:#127c78; font-weight:700;}
+.chip{display:flex; flex-direction:column; justify-content:center;}
+.chip small{display:block; font-size:11px; font-weight:500; color:var(--ink-mute); margin-top:2px;}
 
-  /* 차대번호 예시 이미지 자리 */
+  /* 차량번호 예시 이미지 자리 */
   .plate-ex{display:flex; gap:10px; margin-top:10px;}
   .plate-ex figure{flex:1; margin:0; text-align:center;}
   .plate-ex .ph{height:66px; border:1.5px dashed var(--line-strong); border-radius:10px;
@@ -332,7 +333,7 @@
 
     <!-- ===== 2. 개인정보 동의 ===== -->
     <section class="screen" data-screen="agree">
-      <h1 class="page">개인정보 수집·이용<br>동의</h1>
+      <h1 class="page">개인정보 수집·이용 동의</h1>
       <p class="lead">(주)우아한청년들은 개인정보보호법 등 법령상의 개인정보 보호 규정을 준수하며, 다음과 같이 개인정보를 수집 이용 합니다.</p>
 
       <div class="card">
@@ -343,7 +344,7 @@
           </div>
           <div class="trow">
             <div class="tk">수집 항목</div>
-            <div class="tv"><span class="em">이름, 아이디, 연락처, 차대번호</span></div>
+            <div class="tv"><span class="em">성함, 아이디, 연락처, 차량번호</span></div>
           </div>
           <div class="trow">
             <div class="tk">보유·이용 기간</div>
@@ -351,7 +352,7 @@
           </div>
           <div class="trow">
             <div class="tk">동의 거부 권리 안내</div>
-            <div class="tv"><span class="em u">개인정보 수집·이용에 동의를 거부할 권리가 있으며, 거부 시 본 이벤트 참여가 제한됩니다.</span></div>
+            <div class="tv"><span class="em u">개인정보 수집·이용에 동의를 거부할 권리가 있으며, 거부 시 본 혜택 신청이 제한됩니다.</span></div>
           </div>
         </div>
       </div>
@@ -415,10 +416,9 @@
             <div class="chip" data-val="알루미늄">알루미늄</div>
             <div class="chip" data-val="플라스틱">플라스틱</div>
             <div class="chip" data-val="EPP">EPP</div>
-            <div class="chip" data-val="기타">배달가방(방수 원단 등)</div>
+            <div class="chip" data-val="배달가방">배달가방<small>방수 원단 등</small></div>
             <div class="chip" data-val="기타">기타</div>
             <div class="chip" data-val="없음">없음</div>
-
           </div>
           <div class="type-note" id="typeNote">짐대 신규 설치 시, 짐대·설치 비용은 지원 되지 않아요.</div>
           <div class="err" id="boxTypeErr" style="display:none; font-size:12px; color:var(--danger); margin-top:8px; font-weight:600;">탑박스 타입을 선택해 주세요.</div>
@@ -431,18 +431,17 @@
       <div class="done-hero" id="issuedHero" style="display:none;">
         <div class="circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h1>혜택 신청이 완료되었어요</h1>
-        <p>정비소 사장님께 이 화면을 보여주세요.</p>
       </div>
 
       <div class="coupon" id="couponCard">
         <div class="head">
-          <span class="badge"><i></i> 무상 공임 지원</span>
-          <div class="cname">배민탑박스 공임 설치 지원<small>지원 범위: 탑박스 설치, 기존 탑박스 폐기<br>*사장님 판단에 따라 필요시 확장플레이트 및 설치 지원</small></div>
+          <span class="badge"><i></i> 정비소 사장님께 이 화면을 보여주세요.</span>
+          <div class="cname">배민탑박스 설치비 100% 지원<small>지원 범위: 탑박스 설치, 기존 탑박스 폐기<br>*사장님 판단에 따라 필요시 확장플레이트 제공</small></div>
         </div>
         <div class="plate-big">
-          <div class="lbl">차대번호</div>
+          <div class="lbl">오토바이 번호판</div>
           <div class="num" id="c-vin">12가 3456</div>
-          <div class="cmp">신청하신 차량과 동일해야 설치가 가능합니다.</div>
+          <div class="cmp">신청하신 차량번호와 동일해야 설치가 가능합니다.</div>
         </div>
         <div class="cinfo">
           <div class="row"><span class="k">신청자</span><span class="v" id="c-name">홍길동</span></div>
@@ -455,26 +454,26 @@
       <!-- 사장님 확인 영역 -->
       <div class="owner-box" id="ownerBox">
         <div class="t">사장님 확인</div>
-        <div class="d">차대번호가 동일하다면 아래 버튼을 눌러 사용처리를 해 주세요.<br>한 번 처리하면 되돌릴 수 없어요.</div>
+        <div class="d">번호판이 동일하다면 아래 버튼을 눌러 사용처리를 해 주세요.<br>한 번 처리하면 되돌릴 수 없어요.</div>
         <button class="btn danger sm" id="useBtn">사용처리</button>
       </div>
 
       <div class="note warn" id="usedNote" style="display:none;">
         <span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01" stroke-linecap="round"/></svg></span>
-        <span>이미 사용 처리된 쿠폰이에요. 재사용은 불가합니다.</span>
+        <span>이미 사용 처리가 완료되었어요. 재사용은 불가합니다.</span>
       </div>
 
       <div class="foot-mini">궁금하신 점은 아래 창구로 연락해 주세요.<br>사장님: 진바이크로 문의<br>라이더님: 배민커넥트 지원센터로 문의</div>
     </section>
 
-    <!-- ===== 5. 조회 (이름+휴대폰) ===== -->
+    <!-- ===== 5. 조회 (성함+연락처) ===== -->
     <section class="screen" data-screen="lookup">
       <h1 class="page">신청 내역 조회</h1>
       <p class="lead">신청 시 입력한 성함과 연락처를 입력하세요.</p>
 
       <div class="card">
         <div class="field" id="f-lname">
-          <label>이름</label>
+          <label>성함</label>
           <input type="text" id="lk-name" placeholder="성함" autocomplete="name">
           <div class="err">성함을 입력해 주세요.</div>
         </div>
@@ -564,7 +563,7 @@ function demoApi(action, p){
 const $  = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const onlyDigits = s => (s||'').replace(/\D/g,'');
-const norm = s => (s||'').trim().toLowerCase().replace(/\s+/g,''); // 이름/아이디 대소문자·공백 무시
+const norm = s => (s||'').trim().toLowerCase().replace(/\s+/g,''); // 성함/아이디 대소문자·공백 무시
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1900); }
 function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())}`; }
 
@@ -590,8 +589,8 @@ function updateChrome(opts={}){
   } else { $('#steps').style.display='none'; }
 
   // 뒤로가기 버튼 + 서브타이틀
-  const sub = {home:'안녕하세요.', guide:'이용 안내', agree:'개인정보 동의', form:'신청 정보 입력',
-               coupon:'내 신청 혜택', lookup:'신청 내역 조회'}[current] || '';
+  const sub = {home:'', guide:'STEP 1', agree:'STEP 2', form:'STEP 3',
+               coupon:'', lookup:''}[current] || '';
   $('#topSub').textContent = sub;
   const showBack = ['guide','agree','form','lookup'].includes(current) || (current==='coupon' && opts.fromLookup);
   $('#backBtn').style.display = showBack ? 'flex' : 'none';
@@ -616,7 +615,7 @@ function renderCTA(){
     const ok = agreeState.a1;
     html = `<button class="btn primary" data-act="go-form" ${ok?'':'disabled'}>다음</button>`;
   } else if(current==='form'){
-    html = `<button class="btn primary" data-act="submit">제출하고 공임 혜택 받기</button>`;
+    html = `<button class="btn primary" data-act="submit">제출하고 설치 지원 받기</button>`;
   } else if(current==='coupon'){
     if(activeCoupon && activeCoupon.fromLookup){
       html = `<button class="btn ghost" data-act="go-lookup">다른 번호로 조회</button>`;
@@ -746,7 +745,7 @@ $('#useBtn').addEventListener('click', async ()=>{
     if(r && r.ok){
       activeCoupon.used = true; activeCoupon.status = '사용완료';
       paintCouponStatus(activeCoupon);
-      toast(r.already ? '이미 사용 처리된 쿠폰이에요.' : '사용 처리됐어요. 재사용은 불가합니다.');
+      toast(r.already ? '이미 사용 처리가 완료되었어요.' : '사용 처리됐어요. 재사용은 불가합니다.');
     } else {
       toast('사용처리에 실패했어요. 다시 시도해 주세요');
       btn.disabled = false; btn.textContent = orig;
@@ -771,7 +770,7 @@ async function doLookup(){
   let ok=true;
   setInvalid('#f-lname', !name); ok = ok && !!name;
   const pBad = phone.length<10; setInvalid('#f-lphone', pBad); ok = ok && !pBad;
-  if(!ok){ toast('이름과 휴대폰번호를 확인해 주세요'); return; }
+  if(!ok){ toast('성함과 연락처를 확인해 주세요'); return; }
 
   const btn = $('#ctaArea .btn');
   if(btn){ btn.disabled = true; btn.textContent = '조회 중…'; }
