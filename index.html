@@ -363,12 +363,11 @@
           <div class="hi"><span class="ic">🔥</span><b>선착순 250명</b> · 조기 마감될 수 있어요</div>
         </div>
       </div>
-      <div class="closed-banner" id="closedBanner">신청이 마감되었습니다</div>
       <div class="home-btns">
         <button class="btn accent btn-lg" data-act="go-guide" id="applyBtn">신규 신청<span class="sub">처음 신청하시나요?</span></button>
         <button class="btn ghost btn-lg" data-act="go-lookup">신청 내역 조회<span class="sub">이미 신청하셨다면 여기서 확인</span></button>
         <div class="home-sep"></div>
-        <button class="btn shop-btn btn-lg" data-act="go-shops">가까운 정비소 찾기<span class="sub">내 주변 설치 가능 정비소 보기</span></button>
+        <button class="btn shop-btn btn-lg" data-act="go-shops">가까운 정비소 찾기</button>
       </div>
     </section>
 
@@ -657,7 +656,6 @@ function demoApi(action, p){
     if(f){ f.used=true; f.status='사용완료'; }
     return Promise.resolve({ ok:true, coupon:f });
   }
-  if(action==='status'){ return Promise.resolve({ ok:true, closed:false }); }
   return Promise.resolve({ ok:false, error:'unknown_action' });
 }
 
@@ -749,7 +747,7 @@ function renderCTA(){
 
 /* 액션 라우팅 (하단 CTA + 화면 내 버튼 공통) */
 function route(act){
-  if(act==='go-guide'){ if(isClosed){ toast('신청이 마감되었습니다'); return; } show('guide'); }
+  if(act==='go-guide') show('guide');
   else if(act==='go-shops') show('shops');
   else if(act==='go-agree') show('agree');
   else if(act==='go-form') show('form');
@@ -825,8 +823,6 @@ async function submitForm(){
   try{
     const r = await api('apply', { name, id, phone, vin, box:selectedBox });
     if(!r || !r.ok){ toast('제출에 실패했어요. 잠시 후 다시 시도해 주세요'); return; }
-    // 마감(선착순 초과 또는 수동 마감)
-    if(r.closed){ applyClosed(); toast('신청이 마감되었습니다'); show('home'); return; }
     // 중복이면 타인 정보 노출 방지를 위해 쿠폰을 열지 않고 경고만 표시
     if(r.duplicate){ openDupModal(r.reason); return; }
     openCoupon(r.coupon, { issued:true, fromLookup:false });
@@ -932,23 +928,10 @@ function resetForm(){
 
 
 /* =========================================================================
-   신청 마감 상태 (서버 status 조회) + 딥링크
+   딥링크: 링크로 바로 '가까운 정비소 찾기' 화면 진입 (#shops)
    ========================================================================= */
-let isClosed = false;
-function applyClosed(){
-  isClosed = true;
-  const b = $('#closedBanner'); if(b) b.style.display = 'block';
-  const gb = $('#applyBtn');
-  if(gb){ gb.classList.add('is-closed'); gb.innerHTML = '신청이 마감되었어요<span class="sub">다음 기회를 기다려 주세요</span>'; }
-  const strip = document.querySelector('.hi-strip'); if(strip) strip.style.display = 'none';
-}
-async function initStatus(){
-  try{ const r = await api('status'); if(r && r.ok && r.closed === true) applyClosed(); }
-  catch(e){ /* 실패 시 오픈 상태 유지(fail-open) */ }
-}
-initStatus();
-// 딥링크: 링크로 바로 '가까운 정비소 찾기' 화면 진입 (#shops)
 if(location.hash === '#shops' || location.hash === '#정비소'){ show('shops'); }
+/* ※ 신청 마감 처리: 나중에 마감 시 아래 '신규 신청' 버튼(#applyBtn)만 비활성 버전으로 교체해 재배포합니다. */
 
 /* =========================================================================
    가까운 정비소 찾기 로직 (독립 스코프 · 기존 신청 로직과 분리)
