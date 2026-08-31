@@ -500,6 +500,13 @@
         <p class="sub">아래 화면을 정비소에서 보여주세요.</p>
       </div>
 
+      <div id="nextGuide" style="display:none; background:var(--mint-soft); border-radius:14px; padding:16px 18px; margin-bottom:16px; text-align:left;">
+        <div style="font-weight:800; font-size:15px; color:var(--ink); margin-bottom:8px;">아직 정비소 예약 전이라면?</div>
+        <div style="font-size:13.5px; color:var(--ink-sub); line-height:1.6;">방문할 정비소에 먼저 전화해 재고·설치 가능 여부를 확인하고 예약해 주세요.</div>
+        <div style="font-size:14.5px; font-weight:800; color:var(--danger); margin-top:12px;">신청만으로 예약이 되는 것은 아니에요.</div>
+        <div style="font-size:12px; color:var(--ink-mute); margin-top:12px;">* 이미 상담·예약하셨다면 이 안내는 넘어가셔도 돼요.</div>
+      </div>
+
       <div class="coupon" id="couponCard">
         <div class="head">
           <span class="badge"><i></i> 정비소 사장님께 이 화면을 보여주세요.</span>
@@ -844,6 +851,7 @@ function openCoupon(rec, {issued=false, fromLookup=false}={}){
   $('#c-date').textContent = rec.date;
   paintCouponStatus(rec);
   $('#issuedHero').style.display = issued ? 'block' : 'none';
+  $('#nextGuide').style.display = issued ? 'block' : 'none';
   show('coupon', {fromLookup});
 }
 function paintCouponStatus(rec){
